@@ -5,10 +5,12 @@ import { FaGoogle } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { auth, googleProvider } from "../firebase.js"
 import { login } from "../features/auth.js"
+import { useDispatch } from "react-redux"
+import { setUserData } from "../redux/userSlice.js"
 
 export function LoginForm({ className, ...props }) {
   const [error, setError] = useState("")
-
+  const dispatch = useDispatch()
   const handleGoogleLogin = async () => {
     try {
       setError("")
@@ -16,9 +18,14 @@ export function LoginForm({ className, ...props }) {
       const token = await result.user.getIdToken()
       const data = await login(token)
       console.log(data)
+      dispatch(setUserData(data))
     } catch (error) {
       console.error(error)
-      setError(error?.response?.data?.error || "Unable to sign in with Google.")
+      setError(
+        error?.response?.data?.error ||
+          error?.message ||
+          "Unable to sign in with Google."
+      )
     }
   }
 

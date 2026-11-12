@@ -13,7 +13,6 @@ export const login = async (token) => {
 export const logout = async () => {
   try {
     const { data } = await api.get("/api/auth/logout");
-    console.log(data);
     return data;
   } catch (error) {
     console.error("Logout error:", error);
@@ -24,7 +23,6 @@ export const logout = async () => {
 export const me = async () => {
   try {
     const { data } = await api.get("/api/auth/me");
-    console.log(data);
     return data;
   } catch (error) {
     console.error("User fetch error:", error);

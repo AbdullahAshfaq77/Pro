@@ -10,9 +10,20 @@ export const login = async (req, res) => {
     return res.status(400).json({ error: "Token is required" });
   }
 
+  let decodedToken;
   try {
-    const decodedToken = await getAuth(app).verifyIdToken(token);
+    decodedToken = await getAuth(app).verifyIdToken(token);
+  } catch (error) {
+    console.error("Firebase token verification failed:", error);
+    return res.status(401).json({ error: "Invalid Firebase token" });
+  }
 
+  if (!process.env.JWT_SECRET) {
+    console.error("JWT_SECRET is not configured");
+    return res.status(500).json({ error: "Authentication is not configured" });
+  }
+
+  try {
     const user = await User.findOneAndUpdate(
       { firebaseId: decodedToken.uid },
       {
@@ -25,7 +36,7 @@ export const login = async (req, res) => {
           firebaseId: decodedToken.uid,
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
 
     const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -39,7 +50,7 @@ export const login = async (req, res) => {
     return res.status(200).json({ message: "Login successful", user, token: jwtToken });
   } catch (error) {
     console.error("Error during login:", error);
-    return res.status(401).json({ error: "Invalid token" });
+    return res.status(500).json({ error: "Unable to complete login" });
   }
 };
 
