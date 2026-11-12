@@ -4,26 +4,21 @@ import { cn } from "cn"
 import { FaGoogle } from "react-icons/fa"
 import { Button } from "@/components/ui/button"
 import { auth, googleProvider } from "../firebase.js"
+import { login } from "../features/auth.js"
 
 export function LoginForm({ className, ...props }) {
-  const [isSigningIn, setIsSigningIn] = useState(false)
   const [error, setError] = useState("")
 
-  async function SignInWithPop() {
-    return signInWithPopup(auth, googleProvider)
-  }
-
-  async function handleGoogleSignIn() {
-    setIsSigningIn(true)
-    setError("")
-
+  const handleGoogleLogin = async () => {
     try {
-      const result = await SignInWithPop()
-      console.log("Signed-in user:", result.user)
-    } catch (signInError) {
-      setError(signInError.message || "Google sign-in failed. Please try again.")
-    } finally {
-      setIsSigningIn(false)
+      setError("")
+      const result = await signInWithPopup(auth, googleProvider)
+      const token = await result.user.getIdToken()
+      const data = await login(token)
+      console.log(data)
+    } catch (error) {
+      console.error(error)
+      setError(error?.response?.data?.error || "Unable to sign in with Google.")
     }
   }
 
@@ -44,11 +39,10 @@ export function LoginForm({ className, ...props }) {
         variant="outline"
         type="button"
         className="h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] text-zinc-200 hover:bg-white/[0.08] hover:text-white"
-        onClick={handleGoogleSignIn}
-        disabled={isSigningIn}
+        onClick={handleGoogleLogin}
       >
         <FaGoogle className="mr-2 h-4 w-4" />
-        {isSigningIn ? "Connecting to Google..." : "Login with Google"}
+        Login with Google
       </Button>
       {error && (
         <p role="alert" className="mt-3 text-center text-sm text-red-300">
