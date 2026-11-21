@@ -5,6 +5,9 @@ import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
 import { me } from './features/auth.js'
 import { setUserData } from './redux/userSlice.js'
+import Agents from './pages/Agents.jsx'
+import Integration from './pages/Integration.jsx'
+import CreateAgent from './pages/CreateAgent.jsx'
 
 function App() {
   const dispatch = useDispatch()
@@ -24,22 +27,18 @@ function App() {
   }, [dispatch])
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={userData ? <Navigate to="/home" replace /> : <Login />}
-        />
-        <Route
-          path="/home"
-          element={userData ? <Home /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/login"
-          element={userData ? <Navigate to="/home" replace /> : <Login />}
-        />
-      </Routes>
-    </BrowserRouter>
+   <>
+<BrowserRouter>
+<Routes>
+  <Route path='/login' element={userData?<Navigate to={"/"}/>:<Login/>}/>
+  <Route path='/' element={userData?<Home/>:<Navigate to={"/login"}/>}/>
+  <Route path='/agents' element={userData?<Agents/>:<Navigate to={"/login"}/>}/>
+  <Route path='/integration' element={userData?<Integration/>:<Navigate to={"/login"}/>}/>
+  <Route path='/agents/new' element={userData?<CreateAgent/>:<Navigate to={"/login"}/>}/>
+</Routes>
+</BrowserRouter>
+</>
+
   )
 }
 
